@@ -69,3 +69,6 @@ coverage.xml
 
 # database
 *.db
+
+# uploaded content
+static/uploaded

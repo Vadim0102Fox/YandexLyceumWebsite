@@ -1,6 +1,58 @@
 {% extends "base.html" %}
+
 {% block content %}
 
-<h2>Добро пожаловать!</h2>
+<h2>Добро пожаловать!
+    <a href="/add_post" class="btn btn-outline-success" type="button">Создать пост</a></h2>
+
+{% for post in posts %}
+<div class="card mb-4">
+    {% if post.image_path %}
+    <img src="{{ post.image_path }}" class="card-img-top" alt="Изображение поста">
+    {% endif %}
+    <div class="card-body d-flex align-items-center">
+        {% set user = users.get(post.author_id) %}
+        {% if user %}
+            <img src="data:image/jpeg;base64,{{ user.avatar_base64 }}" alt="Аватар" class="rounded-circle me-3" width="50" height="50">
+            <a href="/profile/{{ user.id }}" class="h5 text-decoration-none">{{ user.name }}</a>
+        {% else %}
+            <span class="h5">Неизвестный автор</span>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <p class="card-text">{{ post.text }}</p>
+    </div>
+
+    {% if post.comments %}
+    <div class="card-footer">
+        <h6>Комментарии:</h6>
+        {% for comment in post.comments %}
+            <div class="mb-2">
+                <strong>
+                    {% if comment.author %}
+                        <a href="/profile/{{ comment.author.id }}">{{ comment.author.name }}</a>
+                    {% else %}
+                        Неизвестный
+                    {% endif %}
+                </strong>: {{ comment.text }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card-footer">
+        <form action="/add_comment/{{ post.id }}" method="post">
+
+            {{ form.hidden_tag() }}
+            <div class="input-group">
+                <input type="text" name="text" class="form-control" placeholder="Добавить комментарий..." required>
+                <button class="btn btn-primary" type="submit">Отправить</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% else %}
+<p>Пока что постов нет. Будь первым!</p>
+{% endfor %}
 
 {% endblock %}
