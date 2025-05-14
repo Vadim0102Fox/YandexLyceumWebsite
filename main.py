@@ -1,18 +1,20 @@
 import base64
 import os
-from flask import Flask, abort, jsonify, make_response, redirect, render_template, send_from_directory
+from flask import Flask, abort, jsonify, make_response, redirect, render_template, send_from_directory, request
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from werkzeug.utils import secure_filename
 from flask_wtf.csrf import CSRFProtect
 
 from models import db_session
 from models.users import User
-from models.posts import Post, Comment
+from models.posts import Post
+from models.comments import Comment
 
 from forms.login_form import LoginForm
 from forms.register_form import RegisterForm
 from forms.add_post_form import PostForm
 from forms.comment_form import CommentForm
+from forms.confirm_action_form import ConfirmForm
 
 
 app = Flask(__name__)
@@ -21,6 +23,7 @@ csrf = CSRFProtect(app)
 
 UPLOAD_FOLDER = 'static/uploaded'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs('db', exist_ok=True)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -51,7 +54,7 @@ def load_user(user_id):
 @app.route("/index")
 def index():
     db_sess = db_session.create_session()
-    posts = db_sess.query(Post).all()
+    posts = db_sess.query(Post).all()[::-1]
     users = {}
     for user in db_sess.query(User).all():
         if user.avatar:
@@ -90,6 +93,21 @@ def add_comment(post_id):
     return abort(400)
 
 
+@app.route('/delete_comment/<int:comment_id>', methods=['GET', 'POST'])
+@login_required
+def delete_comment(comment_id):
+    form = ConfirmForm()
+    if form.validate_on_submit():
+        return redirect('/')
+    return render_template('confirm_action.html', title="Подтверждение удаления комментария", type="danger", form=form)
+
+
+@app.route('/edit_profile/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def edit_profile(user_id):
+    ...
+
+
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory('static/img', 'icon.jpg')
@@ -108,11 +126,14 @@ def login():
     return render_template('login.html', title='Авторизация', form=form)
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
-    logout_user()
-    return redirect("/")
+    form = ConfirmForm()
+    if form.validate_on_submit():
+        logout_user()
+        return redirect("/")
+    return render_template('confirm_action.html', title="Подтверждение выхода из аккаунта", type="warning", form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -157,7 +178,7 @@ def add_post():
         db_sess = db_session.create_session()
         post = Post()
         post.text = form.text.data
-        post.author_id = current_user.id  # <--- Важно
+        post.author_id = current_user.id
 
         if form.image.data:
             filename = secure_filename(form.image.data.filename)
@@ -169,6 +190,15 @@ def add_post():
         db_sess.commit()
         return redirect('/')
     return render_template('add_post.html', title='Создать пост', form=form)
+
+
+@app.route('/delete_post/<int:post_id>', methods=['GET', 'POST'])
+@login_required
+def delete_post(post_id):
+    form = ConfirmForm()
+    if form.validate_on_submit():
+        return redirect('/')
+    return render_template('confirm_action.html', title="Подтверждение удаления поста", type="danger", form=form)
 
 
 def main():

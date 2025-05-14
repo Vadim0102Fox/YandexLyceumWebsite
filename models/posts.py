@@ -13,7 +13,7 @@ class Post(SqlAlchemyBase):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
     author_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
-    author = orm.relationship('User')
+    author = orm.relationship('User', back_populates='posts')
     
     # Связь с комментариями
     comments = orm.relationship('Comment', back_populates='post')
@@ -21,19 +21,3 @@ class Post(SqlAlchemyBase):
     def __repr__(self):
         return f'<Post {self.id}> Автор: {self.author_id}'
 
-
-class Comment(SqlAlchemyBase):
-    __tablename__ = 'comments'
-
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    text = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
-
-    author_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
-    author = orm.relationship('User')
-
-    post_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('posts.id'))
-    post = orm.relationship('Post', back_populates='comments')
-
-    def __repr__(self):
-        return f'<Comment {self.id}> Автор: {self.author_id} Пост: {self.post_id}'

@@ -7,15 +7,16 @@
 
 {% for post in posts %}
 <div class="card mb-4">
-    {% if post.image_path %}
-    <img src="{{ post.image_path }}" class="card-img-top" alt="Изображение поста">
-    {% endif %}
     <div class="card-body d-flex align-items-center">
         {% set user = users.get(post.author_id) %}
         {% if user %}
             <img src="data:image/jpeg;base64,{{ user.avatar_base64 }}" alt="Аватар" class="rounded-circle me-3" width="50" height="50">
-            <a href="/profile/{{ user.id }}" class="h5 text-decoration-none">{{ user.name }}</a>
-        {% else %}
+            <a href="/profile/{{ user.id }}" class="h5 text-decoration-none me-3">{{ user.name }}</a>
+            {% if current_user.id == user.id or current_user.role == 2 %}
+                <a href="/edit_post/{{ post.id }}" role="button" class="btn btn-info me-3">Редактировать</a>
+                <a href="/delete_post/{{ post.id }}" role="button" class="btn btn-danger me-3">Удалить</a>
+            {% endif %}
+        {% else %} 
             <span class="h5">Неизвестный автор</span>
         {% endif %}
     </div>
@@ -23,18 +24,26 @@
         <p class="card-text">{{ post.text }}</p>
     </div>
 
+    {% if post.image_path %}
+    <img src="{{ post.image_path }}" class="card-img-top" alt="Изображение поста">
+    {% endif %}
+
     {% if post.comments %}
     <div class="card-footer">
         <h6>Комментарии:</h6>
         {% for comment in post.comments %}
-            <div class="mb-2">
+            <div class="mb-2 clearfix">
                 <strong>
                     {% if comment.author %}
-                        <a href="/profile/{{ comment.author.id }}">{{ comment.author.name }}</a>
+                        <a href="/profile/{{ comment.author.id }}" class="float-start">{{ comment.author.name }}</a>
                     {% else %}
                         Неизвестный
                     {% endif %}
                 </strong>: {{ comment.text }}
+                {% if current_user.id == user.id or current_user.role == 2 %}
+                    <a href="/delete_comment/{{ post.id }}" role="button" class="btn btn-outline-danger me-3 float-end">Удалить</a>
+                    <a href="/edit_comment/{{ post.id }}" role="button" class="btn btn-outline-info me-3 float-end">Редактировать</a>
+                {% endif %}
             </div>
         {% endfor %}
     </div>

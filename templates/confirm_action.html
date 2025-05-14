@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card">
+    <div class="alert alert-{{ type }}">
+        <h1>{{ title }}</h1>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Вы подтверждаете данное действие?</h5>
+        {% if type == 'danger' %}
+            <p class="card-text">Вы не сможете отменить это в будущем.</p>
+        {% endif %}
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            {{ form.confirm(type="submit", class="btn btn-primary") }}
+        </form>
+    </div>
+</div>
+
+{% endblock %}
