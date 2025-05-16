@@ -13,7 +13,7 @@ class User(SqlAlchemyBase, UserMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True, default='')
-    avatar = sqlalchemy.Column(sqlalchemy.LargeBinary, nullable=True)
+    avatar_path = sqlalchemy.Column(sqlalchemy.String, default='/static/img/user_icon.png')
     email = sqlalchemy.Column(sqlalchemy.String, index=True, unique=True, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     role = sqlalchemy.Column(sqlalchemy.Integer, default=1)  # 1 - user, 2 - admin

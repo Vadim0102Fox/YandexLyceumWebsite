@@ -15,7 +15,7 @@
     <div class="card mx-auto" style="max-width: 500px;">
         <div class="card-body text-center">
             <!-- Аватар -->
-            <img src="data:image/jpeg;base64,{{ user_avatar_base64 }}" alt="Аватар" class="rounded-circle mb-3" width="120" height="120">
+            <img src="{{ user.avatar_path }}" class="card-img-top" alt="Аватарка" class="rounded-circle mb-3" style="width: 120px;height: 120px;">
             
             <!-- Имя пользователя -->
             <h4 class="card-title">{{ user.name }}</h4>
